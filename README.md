@@ -35,6 +35,7 @@ https://github.com/YogeshUmeshVaity/nest-commitizen-commitlint
 https://www.rxtsel.dev/en/blog/how-to-install-husky-and-commitlint-in-your-projects-a-step-by-step-guide/
 
 `npm install husky @commitlint/{config-conventional,cli} commitlint commitizen @commitlint/cz-commitlint --save-dev`
+`npm install conventional-changelog-cli --save-dev`
 
 `npx husky-init`
 
@@ -43,7 +44,18 @@ https://www.rxtsel.dev/en/blog/how-to-install-husky-and-commitlint-in-your-proje
 `npx husky add .husky/pre-commit 'npm run lint'`
 
 
+- Update `package.json` :
 
+```
+"scripts": {
+  "commit": "git-cz"
+},
+"config": {
+  "commitizen": {
+    "path": "@commitlint/cz-commitlint"
+  }
+},
+```
 
 ## Description
 
