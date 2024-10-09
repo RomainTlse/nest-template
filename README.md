@@ -57,6 +57,51 @@ https://www.rxtsel.dev/en/blog/how-to-install-husky-and-commitlint-in-your-proje
 },
 ```
 
+## CI
+
+### create the files `.github.workflows.ci.yml`
+
+```
+name: Angular CI
+
+on:
+  push:
+    branches:
+      - develop
+  pull_request:
+    branches:
+      - develop
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [20.x]
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Install dependencies ️ ⬇️
+        run: npm ci
+
+      - name: Run unit tests 📝
+        run: npm run test
+
+      - name: Run e2e tests 📝
+        run: npm run cy
+
+      - name: Build project 🏗️
+        run: npm run build
+
+```
+
 ## Description
 
 [Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
