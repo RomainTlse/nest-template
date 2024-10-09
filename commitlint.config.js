@@ -24,7 +24,7 @@ module.exports = {
   },
   prompt: {
     messages: {
-      type: 'Select the type of change that you\'re committing:',
+      type: "Select the type of change that you're committing:",
       scope: 'Denote the SCOPE of this change (optional):',
       customScope: 'Denote the CUSTOM SCOPE of this change:',
       subject: 'Write a SHORT, IMPERATIVE tense description of the change:\n',
