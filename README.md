@@ -22,6 +22,29 @@
   <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
   [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
 
+## create the project
+
+```
+$ npm i -g @nestjs/cli
+$ nest new nest-template
+```
+
+## husky/commitlint
+
+https://github.com/YogeshUmeshVaity/nest-commitizen-commitlint
+https://www.rxtsel.dev/en/blog/how-to-install-husky-and-commitlint-in-your-projects-a-step-by-step-guide/
+
+`npm install husky @commitlint/{config-conventional,cli} commitlint commitizen @commitlint/cz-commitlint --save-dev`
+
+`npx husky-init`
+
+`npx husky add .husky/commit-msg 'npx --no -- commitlint --edit ${1}'`
+
+`npx husky add .husky/pre-commit 'npm run lint'`
+
+
+
+
 ## Description
 
 [Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
