@@ -102,6 +102,70 @@ jobs:
 
 ```
 
+## Mysql / type ORM
+
+https://docs.nestjs.com/recipes/sql-typeorm
+https://medium.com/@gonzalomauriciodt/create-and-dockerize-a-nestjs-application-with-connection-to-mysql-78b5242a4975
+
+`npm install --save @nestjs/typeorm typeorm@0.2 mysql2`
+
+``
+``` typescript
+import { DataSource } from 'typeorm';
+
+export const databaseProviders = [
+  {
+    provide: 'DATA_SOURCE',
+    useFactory: async () => {
+      const dataSource = new DataSource({
+        type: 'mysql',
+        host: 'localhost',
+        port: 3306,
+        username: 'root',
+        password: 'root',
+        database: 'test',
+        entities: [
+            __dirname + '/../**/*.entity{.ts,.js}',
+        ],
+        synchronize: true,
+      });
+
+      return dataSource.initialize();
+    },
+  },
+];
+```
+
+`nest g mo database`
+
+```typescript
+import { Module } from '@nestjs/common';
+import { databaseProviders } from './database.providers';
+
+@Module({
+  providers: [...databaseProviders],
+  exports: [...databaseProviders],
+})
+export class DatabaseModule {}
+```
+
+
+`app.module.ts`
+
+```typescript
+import { Module } from '@nestjs/common';
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
+import { DatabaseModule } from "./database/database.module";
+
+@Module({
+  imports: [DatabaseModule],
+  controllers: [AppController],
+  providers: [AppService],
+})
+export class AppModule {}
+```
+
 ## Description
 
 [Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
