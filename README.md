@@ -166,6 +166,38 @@ import { DatabaseModule } from "./database/database.module";
 export class AppModule {}
 ```
 
+## Docker
+
+`docker-compose.yml`
+
+```yaml
+version: '3.8'
+services:
+  db:
+    image: mysql:latest
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: 'root'
+      MYSQL_DATABASE: 'template'
+      MYSQL_USER: 'template'
+      MYSQL_PASSWORD: 'template'
+    volumes:
+      - ./mysql_data:/var/lib/mysql
+    ports:
+      - "6033:3306"
+
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:latest
+    restart: always
+    depends_on:
+      - db
+    environment:
+      PMA_HOST: db
+      MYSQL_ROOT_PASSWORD: ''
+    ports:
+      - "8080:80"
+```
 ## Description
 
 [Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
