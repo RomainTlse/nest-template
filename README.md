@@ -136,6 +136,111 @@ jobs:
 
 ```
 
+## Mysql / type ORM
+
+`npm install --save @nestjs/typeorm typeorm mysql2`
+
+`ormconfig.json`
+
+```json
+  "type": "mysql",
+  "host": "mysql",
+  "port": 3306,
+  "username": "root",
+  "password": "P@ssw0rd!",
+  "database": "template",
+  "entities": [
+    "dist/**/*.entity{.ts,.js}"
+  ],
+  "synchronize": false
+}
+```
+
+`.env`
+
+```
+MYSQL_ROOT_PASSWORD=P@ssw0rd!
+MYSQL_DATABASE=template
+MYSQL_HOST=mysql
+```
+
+## Docker
+
+`docker-compose.yml`
+
+```
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: mysql-container
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - nestjs-network
+
+  nestjs:
+    build: .
+    container_name: nestjs-container
+    ports:
+      - "3030:3000"
+    depends_on:
+      - mysql
+    networks:
+      - nestjs-network
+    environment:
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_USERNAME: root
+      DB_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      DB_DATABASE: ${MYSQL_DATABASE}
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: phpmyadmin-container
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    ports:
+      - "8080:80"
+    networks:
+      - nestjs-network
+    depends_on:
+      - mysql
+
+volumes:
+  mysql_data:
+
+networks:
+  nestjs-network:
+    driver: bridge
+
+```
+
+`Dockerfile`
+
+```
+# Utiliser l'image officielle Node.js
+FROM node:latest
+
+WORKDIR /app
+
+COPY package*.json ./
+RUN npm install
+
+COPY . .
+
+CMD ["npm", "run", "start:prod"]
+
+```
+
 <p align="center">
   <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
 </p>
