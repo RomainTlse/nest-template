@@ -5,7 +5,136 @@ $ npm i -g @nestjs/cli
 $ nest new nest-template
 ```
 
+## Quality
 
+`npm install --save-dev semantic-release @semantic-release/changelog @semantic-release/git @semantic-release/commit-analyzer @semantic-release/release-notes-generator`
+
+`.releaserc`
+
+```
+{
+  "branches": ["main"],
+  "plugins": [
+    "@semantic-release/commit-analyzer",
+    "@semantic-release/release-notes-generator",
+    "@semantic-release/changelog",
+    "@semantic-release/git"
+  ]
+}
+```
+
+`npm install --save-dev @commitlint/cli`
+`npm install --save-dev @commitlint/config-conventional`
+`echo "export default { extends: ['@commitlint/config-conventional'] };" > commitlint.config.js`
+`npm install --save-dev commitizen cz-customizable`
+`package.json`
+
+```
+"scripts": {
+  "commit": "git-cz"
+},
+"config": {
+  "commitizen": {
+    "path": "./node_modules/cz-customizable"
+  }
+}
+```
+
+`.cz-config.js`
+
+```
+module.exports = {
+  types: [
+    { value: 'feat', name: 'feat:     Une nouvelle fonctionnalité' },
+    { value: 'fix', name: 'fix:      Correction d\'un bug' },
+    { value: 'docs', name: 'docs:     Documentation' },
+    { value: 'style', name: 'style:    Modifications de formatage (pas de code fonctionnel)' },
+    { value: 'refactor', name: 'refactor: Refactoring de code' },
+    { value: 'perf', name: 'perf:     Amélioration des performances' },
+    { value: 'test', name: 'test:     Ajout de tests' },
+    { value: 'chore', name: 'chore:    Modifications mineures (outils, configuration)' },
+    { value: 'revert', name: 'revert:   Revertir un commit précédent' }
+  ],
+  messages: {
+    type: "Quel type de changement avez-vous effectué ?",
+    subject: "Quelle est la portée de votre changement ?"
+  }
+};
+```
+
+`npm install husky --save-dev`
+
+`.husky/commit-msg`
+
+```
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
+npx --no-install commitlint --edit $1
+```
+
+`.husky/pre-commit`
+
+```
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+npm test
+npm run lint
+```
+
+`chmod +x .husky/*`
+
+pour commiter :
+
+`npx git-cz`
+
+Pour faire une release :
+
+`npx semantic-release`
+
+## CI
+
+### create the files `.github/workflows/ci.yml`
+
+```
+name: CI
+on:
+  push:
+    branches:
+      - develop
+  pull_request:
+    branches:
+      - develop
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [20.x] # Remplace par la version de Node.js que tu utilises.
+
+    steps:
+      - name: Checkout repository ✅
+        uses: actions/checkout@v2
+
+      - name: Use Node.js ${{ matrix.node-version }} 👷
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Install dependencies ⬇️
+        run: npm install
+
+      - name: Run Linter 📝
+        run: npm run lint
+
+      - name: Run tests 📝
+        run: npm run test
+
+      - name: Build project 🏗️
+        run: npm run build
+
+```
 
 <p align="center">
   <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
