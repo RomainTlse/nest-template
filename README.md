@@ -245,6 +245,11 @@ docker-compose up --build
 migration
 npx typeorm migration:generate .\src\migrations\addUser -d .\dist\data-source.js
 
+## swagger
+
+npm install @nestjs/swagger swagger-ui-express
+
+
 <p align="center">
   <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
 </p>
