@@ -243,12 +243,37 @@ CMD ["npm", "run", "start:prod"]
 docker-compose up --build
 
 migration
-npx typeorm migration:generate .\src\migrations\addUser -d .\dist\data-source.js
+npx typeorm migration:generate .\src\migrations\UserIconHullable -d .\dist\data-source.js
 
 ## swagger
 
 npm install @nestjs/swagger swagger-ui-express
 
+code pour la verif du mdp avec hash
+
+```typescript
+  async
+validateUserPassword(loginDto
+:
+LoginDto
+):
+Promise < User > {
+  const { mail, password } = loginDto;
+
+  const user = await this.userRepository.findOne({ where: { mail } });
+  if(!
+user
+)
+{
+  throw new NotFoundException('Utilisateur non trouvé');
+}
+
+// Vérifier le mot de passe
+const isMatch = await bcrypt.compare(password, user.password);
+if (!isMatch) {
+  throw new Error('Mot de passe incorrect');
+}
+```
 
 <p align="center">
   <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>

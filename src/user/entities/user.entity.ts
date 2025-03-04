@@ -1,5 +1,6 @@
 // src/user/user.entity.ts
 import {
+  BeforeInsert,
   Column,
   Entity,
   JoinColumn,
@@ -8,6 +9,7 @@ import {
 } from 'typeorm';
 import { Profil } from '../../profil/entities/profil.entity';
 import { ApiProperty } from '@nestjs/swagger';
+import * as bcrypt from 'bcryptjs';
 
 @Entity()
 export class User {
@@ -55,7 +57,7 @@ export class User {
   @ApiProperty({
     description: "Icone de l'utilisateur",
   })
-  @Column()
+  @Column({ nullable: true })
   icon: string;
 
   @ApiProperty({
@@ -64,4 +66,12 @@ export class User {
   @ManyToOne(() => Profil, (profil) => profil.users)
   @JoinColumn({ name: 'profilId' })
   profil: Profil;
+
+  @BeforeInsert()
+  async hashPassword() {
+    if (this.password) {
+      const salt = await bcrypt.genSalt(10);
+      this.password = await bcrypt.hash(this.password, salt);
+    }
+  }
 }

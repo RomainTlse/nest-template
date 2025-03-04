@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  Logger,
   Param,
   Patch,
   Post,
@@ -16,6 +17,8 @@ import { Profil } from './entities/profil.entity';
 @Controller('profil')
 @ApiTags('profiles')
 export class ProfilController {
+  private readonly logger = new Logger(ProfilService.name);
+
   constructor(private readonly profilService: ProfilService) {}
 
   @Post()
@@ -26,6 +29,8 @@ export class ProfilController {
     type: Profil,
   })
   create(@Body() createProfilDto: CreateProfilDto) {
+    console.log(createProfilDto);
+    this.logger.log('Creating profil', JSON.stringify(createProfilDto));
     return this.profilService.create(createProfilDto);
   }
 
