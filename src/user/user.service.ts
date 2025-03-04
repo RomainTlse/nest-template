@@ -9,12 +9,15 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
+import { Profil } from '../profil/entities/profil.entity';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(User)
     private _userRepository: Repository<User>,
+    @InjectRepository(Profil)
+    private profilRepository: Repository<Profil>,
   ) {}
 
   /**
@@ -27,18 +30,26 @@ export class UserService {
         where: { mail: createUserDto.mail },
       });
       if (existingUser) {
+        console.error('Email already in use');
         throw new ConflictException('Email already in use');
       }
 
+      const profil = await this.profilRepository.findOne({
+        where: { id: createUserDto.profil.id },
+      });
+      if (!profil) {
+        console.error('Profil not found');
+        throw new Error('Profil not found');
+      }
+
       return await this._userRepository.save(
-        this._userRepository.create(createUserDto),
+        this._userRepository.create({
+          ...createUserDto,
+          profil,
+        }),
       );
     } catch (error) {
       console.error('Error creating User:', error);
-      if (error instanceof ConflictException) {
-        console.error("l'utilisateur existe déjà");
-        throw error; // Re-throw ConflictException pour être gérée par NestJS
-      }
       throw new HttpException('Error creating User', HttpStatus.BAD_REQUEST);
     }
   }
@@ -48,7 +59,7 @@ export class UserService {
    */
   async findAll(): Promise<User[]> {
     try {
-      return await this._userRepository.find();
+      return await this._userRepository.find({ relations: ['profil'] });
     } catch (error) {
       console.error('Erreur lors de la récupération des utilisateurs :', error);
       throw new Error('Impossible de récupérer les utilisateurs.');
@@ -61,8 +72,12 @@ export class UserService {
    */
   async findOne(id: number): Promise<User> {
     try {
-      const user = await this._userRepository.findOneBy({ id });
+      const user = await this._userRepository.findOne({
+        where: { id },
+        relations: ['profil'],
+      });
       if (!user) {
+        console.error(`User with id ${id} not found.`);
         throw new HttpException(
           `User with id ${id} not found.`,
           HttpStatus.NOT_FOUND,
@@ -83,17 +98,34 @@ export class UserService {
    * @param id
    * @param updateUserDto
    */
-  async update(id: number, updateUserDto: UpdateUserDto): Promise<User> {
-    const user = await this._userRepository.findOneBy({ id });
+  async update(id: number, updateUserDto: UpdateUserDto): Promise<User | null> {
+    const user = await this._userRepository.findOne({ where: { id } });
     if (!user) {
       throw new HttpException(
         `User with id ${id} not found.`,
         HttpStatus.NOT_FOUND,
       );
     }
+    const profil = await this.profilRepository.findOne({
+      where: { id: updateUserDto.profil?.id },
+    });
+    if (!profil) {
+      console.error('Profil not found');
+      throw new Error('Profil not found');
+    }
+
     try {
-      await this._userRepository.update(id, updateUserDto);
-      return this.findOne(id);
+      // Mise à jour de l'utilisateur en utilisant `update()`.
+      await this._userRepository.update(id, {
+        ...updateUserDto,
+        profil,
+      });
+
+      // Retourner l'entité mise à jour
+      return this._userRepository.findOne({
+        where: { id },
+        relations: ['profil'],
+      });
     } catch (error) {
       console.error('Error updating User:', error);
       throw new HttpException(

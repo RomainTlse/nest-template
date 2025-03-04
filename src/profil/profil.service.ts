@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { CreateProfilDto } from './dto/create-profil.dto';
 import { UpdateProfilDto } from './dto/update-profil.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -7,6 +7,8 @@ import { Repository } from 'typeorm';
 
 @Injectable()
 export class ProfilService {
+  private readonly logger = new Logger(ProfilService.name);
+
   constructor(
     @InjectRepository(Profil)
     private _profilRepository: Repository<Profil>,
@@ -18,8 +20,14 @@ export class ProfilService {
    */
   async create(createProfilDto: CreateProfilDto): Promise<Profil> {
     try {
-      return await this._profilRepository.save(createProfilDto);
+      const profil = new Profil();
+      profil.name = createProfilDto.name;
+      return await this._profilRepository.save(
+        profil,
+        //this._profilRepository.create(profil),
+      );
     } catch (error) {
+      this.logger.error('Creating profil', error);
       console.error('Error creating profil', error);
       throw new HttpException('Error creating profil', HttpStatus.BAD_REQUEST);
     }
