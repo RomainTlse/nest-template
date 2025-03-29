@@ -275,6 +275,17 @@ if (!isMatch) {
 }
 ```
 
+## jwt
+
+npm install @nestjs/jwt passport-jwt @nestjs/passport passport
+npm install --save-dev @types/passport-jwt
+
+nest g guard auth
+nest g service jwtStrategy
+
+npm install nodemailer @nestjs-modules/mailer
+npm install pug
+
 <p align="center">
   <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
 </p>

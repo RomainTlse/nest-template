@@ -18,10 +18,17 @@ async function bootstrap() {
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api/doc', app, document); // L'URL de Swagger sera disponible sur /api
+  SwaggerModule.setup('doc', app, document); // L'URL de Swagger sera disponible sur /api
 
-  await app.listen(process.env.PORT ?? 3000);
   app.useGlobalPipes(new ValidationPipe());
+  app.setGlobalPrefix('api');
+  app.enableCors({
+    origin: 'http://localhost:4200', // URL de votre frontend Angular
+    methods: 'GET, POST, PUT, DELETE, PATCH', // Méthodes HTTP autorisées
+    allowedHeaders: 'Content-Type, Authorization', // Entêtes autorisées
+    credentials: true, // Autoriser l'envoi de cookies (si nécessaire)
+  });
+  await app.listen(process.env.PORT ?? 3000);
 }
 
 bootstrap();

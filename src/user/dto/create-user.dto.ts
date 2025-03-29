@@ -15,7 +15,7 @@ export class CreateUserDto {
   })
   @IsEmail()
   @IsNotEmpty()
-  readonly mail: string;
+  readonly email: string;
 
   @ApiProperty({
     description: "Username de l'utilisateur",
@@ -47,6 +47,6 @@ export class CreateUserDto {
 
   @ApiProperty({ description: "Profil de l'utilisateur" })
   @IsInt()
-  @IsNotEmpty()
+  @IsOptional()
   readonly profil: Profil;
 }

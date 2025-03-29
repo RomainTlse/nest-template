@@ -9,7 +9,7 @@ export class UpdateUserDto {
   })
   @IsEmail()
   @IsOptional()
-  readonly mail: string;
+  readonly email: string;
 
   @ApiProperty({
     description: "Username de l'utilisateur",

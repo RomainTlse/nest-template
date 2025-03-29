@@ -43,6 +43,17 @@ services:
       - nestjs-network
     depends_on:
       - mysql
+  mailhog:
+    image: mailhog/mailhog
+    container_name: mailhog
+    ports:
+      - "1025:1025"   # SMTP port (pour envoyer les e-mails)
+      - "8025:8025"   # Web interface (pour visualiser les e-mails capturés)
+    environment:
+      - MH_STORAGE=maildir
+    restart: unless-stopped
+    networks:
+      - nestjs-network
 
 volumes:
   mysql_data:

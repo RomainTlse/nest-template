@@ -25,7 +25,7 @@ export class User {
     example: 'john.doe@mail.fr',
   })
   @Column()
-  mail: string;
+  email: string;
 
   @ApiProperty({
     description: "Username de l'utilisateur",
@@ -59,6 +59,19 @@ export class User {
   })
   @Column({ nullable: true })
   icon: string;
+
+  @ApiProperty({
+    description: 'Token de reinitialisation du mot de passe',
+  })
+  @Column({ nullable: true })
+  resetToken: string;
+
+  @ApiProperty({
+    description:
+      "Temps d'expiration du token de reinitialisation du mot de passe",
+  })
+  @Column({ nullable: true })
+  resetTokenExpiry: Date;
 
   @ApiProperty({
     description: "Profil de l'utilisateur",

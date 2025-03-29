@@ -10,6 +10,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
 import { Profil } from '../profil/entities/profil.entity';
+import * as bcrypt from 'bcryptjs';
 
 @Injectable()
 export class UserService {
@@ -27,7 +28,7 @@ export class UserService {
   async create(createUserDto: CreateUserDto): Promise<User> {
     try {
       const existingUser = await this._userRepository.findOne({
-        where: { mail: createUserDto.mail },
+        where: { email: createUserDto.email },
       });
       if (existingUser) {
         console.error('Email already in use');
@@ -88,6 +89,29 @@ export class UserService {
       console.error('Get one user by id error: ', error);
       throw new HttpException(
         `Get one user by id error`,
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+  }
+
+  async findOneByMail(email: string): Promise<User> {
+    try {
+      const user = await this._userRepository.findOne({
+        where: { email },
+        relations: ['profil'],
+      });
+      if (!user) {
+        console.error(`User with mail ${email} not found.`);
+        throw new HttpException(
+          `User with mail ${email} not found.`,
+          HttpStatus.NOT_FOUND,
+        );
+      }
+      return user;
+    } catch (error) {
+      console.error('Get one user by mail error: ', error);
+      throw new HttpException(
+        `Get one user by mail error`,
         HttpStatus.BAD_REQUEST,
       );
     }
@@ -157,5 +181,48 @@ export class UserService {
         HttpStatus.BAD_REQUEST,
       );
     }
+  }
+
+  async saveResetToken(id: number, resetToken: string): Promise<void> {
+    const user = await this._userRepository.findOneBy({ id });
+
+    if (!user) {
+      throw new Error('Utilisateur non trouvé');
+    }
+
+    user.resetToken = resetToken; // Assure-toi que tu as un champ `resetToken` dans ton entité `User`
+    user.resetTokenExpiry = new Date(Date.now() + 3600000); // Exemple d'expiration du token dans 1 heure
+    await this._userRepository.save(user);
+  }
+
+  async findByResetToken(resetToken: string): Promise<User | null> {
+    const user = await this._userRepository.findOne({
+      where: {
+        resetToken: resetToken,
+      },
+    });
+
+    if (!user) {
+      throw new Error('Token invalide');
+    }
+
+    if (user.resetTokenExpiry && new Date(Date.now()) > user.resetTokenExpiry) {
+      throw new Error('Token expiré');
+    }
+
+    return user;
+  }
+
+  async updatePassword(id: number, password: string): Promise<void> {
+    const user = await this._userRepository.findOneBy({ id });
+
+    if (!user) {
+      throw new Error('Utilisateur non trouvé');
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    user.password = await bcrypt.hash(password, salt); // Remplacer le mot de passe de l'utilisateur
+    user.resetToken = ''; // Effacer le token de réinitialisation une fois le mot de passe changé
+    await this._userRepository.save(user);
   }
 }
